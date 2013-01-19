@@ -112,7 +112,7 @@ class DB {
             self::$statement = self::$link->prepare($query);
             self::$statement->execute($field);
             return self::$statement;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             error_reporting("Error!: " . $e->getMessage() . "<br/>", E_USER_ERROR);
         }
     }
@@ -224,7 +224,7 @@ class DB {
             self::$link->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
             self::$link_list[$name] = self::$link;  
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             die("Error!: " . $e->getMessage() . "<br/>");
         }
     }
