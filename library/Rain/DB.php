@@ -11,7 +11,6 @@ namespace Rain;
  * @link http://rainframework.com
  */
 
-
 /**
  * DB is the main class of the library
  */
@@ -42,7 +41,8 @@ class DB {
      * Initialize the connection
      * @param string $name Name of the connection
      */
-    public static function init( $name = null ){
+    public static function init($name = null)
+    {
 
         // set the database list
         if (!self::$db) {
@@ -105,14 +105,15 @@ class DB {
     * @param string $query
     * @param array $field if you use PDO prepared query here you going to write the field
     */
-    public static function query($query = null, $field = array() ) {
+    public static function query($query = null, $field = array())
+    {
         try {
             self::$last_query = $query;
             self::$nquery++;
             self::$statement = self::$link->prepare($query);
             self::$statement->execute($field);
             return self::$statement;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             error_reporting("Error!: " . $e->getMessage() . "<br/>", E_USER_ERROR);
         }
     }
@@ -126,7 +127,8 @@ class DB {
     * @param array $field
     * @return string
     */
-    public static function getField($query = null, $field = array()) {
+    public static function getField($query = null, $field = array())
+    {
         if( $query )
             self::query($query, $field);
         return self::$statement->fetchColumn(0);
@@ -141,7 +143,8 @@ class DB {
     * @param array $field
     * @return array
     */
-    public static function getRow($query = null, $field = array()) {
+    public static function getRow($query = null, $field = array())
+    {
         if( $query )
             self::query($query, $field);
         return self::$statement->fetch(self::$conf['fetch_mode']);
@@ -162,7 +165,12 @@ class DB {
     * @param array $field
     * @return array of array
     */
-    public static function getAll($query = null, $field = array(), $key = null, $value = null) {
+    public static function getAll(
+        $query = null,
+        $field = array(),
+        $key = null,
+        $value = null
+    ) {
         $rows = array();
         if( $query )
             self::query($query, $field);
@@ -170,18 +178,17 @@ class DB {
         if ($result = self::$statement->fetchALL(self::$conf['fetch_mode'])) {
             if (!$key){
                 return $result;
-            }
-            elseif (!$value){
+            } elseif (!$value){
                 foreach ($result as $row){
                     $rows[$row[$key]] = $row;
                 }
-            }
-            else{
+            } else {
                 foreach ($result as $row){
                     $rows[$row[$key]] = $row[$value];
                 }
             }
         }
+
         return $rows;
     }
     
@@ -190,7 +197,8 @@ class DB {
     /**
      * Get the last inserted id of an insert query
      */
-    public static function getLastId() {
+    public static function getLastId()
+    {
         return self::$link->lastInsertId();
     }
 
@@ -199,16 +207,16 @@ class DB {
     /**
      * Return the last query executed
      */
-    public static function getLastQuery(){
+    public static function getLastQuery()
+    {
         return self::$last_query;
     }
     
-
-
     /**
      * Return the number of executed query
      */
-    public static function getExecutedQuery() {
+    public static function getExecutedQuery()
+    {
         return self::$nquery;
     }
 
@@ -217,14 +225,14 @@ class DB {
     /**
      * Connect to the database
      */
-    public static function setup($string, $username, $password, $name ) {
-
+    public static function setup($string, $username, $password, $name)
+    {
         try {
             self::$link = new \PDO($string, $username, $password);
             self::$link->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
             self::$link_list[$name] = self::$link;  
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             die("Error!: " . $e->getMessage() . "<br/>");
         }
     }
@@ -233,17 +241,16 @@ class DB {
     /**
      * Configure the settings
      */
-    public static function configure($setting, $value = null) {
-        if (is_array($setting))
+    public static function configure($setting, $value = null)
+    {
+        if (is_array($setting)){
             foreach ($setting as $key => $value)
                 static::configure($key, $value);
-        else if (isset(static::$conf[$setting])) {
+        } else if (isset(static::$conf[$setting])) {
             static::$conf[$setting] = $value;
         }
     }
-    
-    
-    
+
     /**
      * Close PDO connection
      * execute this method to close the connection with the selected database
@@ -253,9 +260,4 @@ class DB {
     public static function disconnect() {
         unset(self::$link);
     }
-
-
-
 }
-
-// -- end
