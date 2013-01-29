@@ -42,12 +42,12 @@ class StatementIterator implements \Iterator
     {
         $this->iterate();
     }
-    
+
     public function key()
     {
         return $this->key;
     }
-    
+
     protected function iterate()
     {
         // The value of the iterator is a selected field of the query
@@ -55,15 +55,15 @@ class StatementIterator implements \Iterator
             // save the result field in $this->value
             $field = $this->statement->fetchColumn(0);
             $this->value = $field;
-                
+
         } else {
             // save the result row in $this->value
             $row = $this->statement->fetch($this->fetch_mode);
             $this->value = $row;
         }
-        
+
         $this->key = $this->select_key
             ? $this->key = $row[$this->select_key]
-            ? $this->key + 1;      
+            ? $this->key + 1;
     }
 }
