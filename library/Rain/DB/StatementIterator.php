@@ -68,6 +68,11 @@ class StatementIterator implements \Iterator
         return $this->statement->columnCount();
     }
 
+    /**
+     * Implementation for Iterator::rewind
+     *
+     * @link http://php.net/manual/en/iterator.rewind.php Docs
+     */
     public function rewind()
     {
         if ($this->statement->execute()) {
@@ -77,26 +82,49 @@ class StatementIterator implements \Iterator
         }
     }
 
+    /**
+     * Implementation for Iterator::valid
+     *
+     * @link http://php.net/manual/en/iterator.valid.php Docs
+     */
     public function valid()
     {
         return (bool) $this->value;
     }
 
+    /**
+     * Implementation for Iterator::current
+     *
+     * @link http://php.net/manual/en/iterator.current.php Docs
+     */
     public function current()
     {
         return $this->value;
     }
 
+    /**
+     * Implementation for Iterator::next
+     *
+     * @link http://php.net/manual/en/iterator.next.php Docs
+     */
     public function next()
     {
         $this->iterate();
     }
 
+    /**
+     * Implementation for Iterator::key
+     *
+     * @link http://php.net/manual/en/iterator.key.php Docs
+     */
     public function key()
     {
         return $this->key;
     }
 
+    /**
+     * Function that does the real iteration
+     */
     protected function iterate()
     {
         // The value of the iterator is a selected field of the query
