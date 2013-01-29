@@ -50,7 +50,6 @@ class StatementIterator implements \Iterator
     
     protected function iterate()
     {
-
         // The value of the iterator is a selected field of the query
         if ($this->select_value) {
             // save the result field in $this->value
@@ -59,16 +58,12 @@ class StatementIterator implements \Iterator
                 
         } else {
             // save the result row in $this->value
-            $row = $this->statement->fetch( $this->fetch_mode );
+            $row = $this->statement->fetch($this->fetch_mode);
             $this->value = $row;
         }
         
-        if ($this->select_key) {
-            $this->key = $row[ $this->select_key ];
-        } else {
-            $this->key++;
-        }
-        
+        $this->key = $this->select_key
+            ? $this->key = $row[$this->select_key]
+            ? $this->key + 1;      
     }
-
 }
