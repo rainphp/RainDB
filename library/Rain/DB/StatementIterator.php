@@ -19,25 +19,55 @@ class StatementIterator implements \Iterator
         $this->fetch_mode   = $fetch_mode;
     }
 
-    public function bindColumn($column, &$param, $type = \PDO::PARAM_STR)
-    {
+    /**
+     * Alias for PDOStatement::bindColumn
+     *
+     * @link http://php.net/manual/en/pdostatement.bindcolumn.php Docs
+     */
+    public function bindColumn(
+        $column,
+        &$param,
+        $type = \PDO::PARAM_STR
+    ) {
         return $this->statement->bindColumn($column, $param, $type);
     }
 
-    public function bindParam($parameter, &$variable, $data_type = \PDO::PARAM_STR)
-    {
+    /**
+     * Alias for PDOStatement::bindParam
+     *
+     * @link http://php.net/manual/en/pdostatement.bindparam.php Docs
+     */
+    public function bindParam(
+        $parameter,
+        &$variable,
+        $data_type = \PDO::PARAM_STR
+    ) {
         return $this->statement->bindParam($parameter, $variable, $data_type);
     }
 
-    public function bindValue($parameter, $variable, $data_type = \PDO::PARAM_STR)
-    {
+    /**
+     * Alias for PDOStatement:: bindValue
+     *
+     * @link http://php.net/manual/en/pdostatement.bindvalue.php Docs
+     */
+    public function bindValue(
+        $parameter,
+        $variable,
+        $data_type = \PDO::PARAM_STR
+    ) {
         return $this->statement->bindValue($parameter, $variable, $data_type);
     }
 
+    /**
+     * Alias for PDOStatement::columnCount
+     *
+     * @link http://php.net/manual/en/pdostatement.columncount.php Docs
+     */
     public function columnCount()
     {
         return $this->statement->columnCount();
     }
+
     public function rewind()
     {
         if ($this->statement->execute()) {
