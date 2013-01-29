@@ -4,8 +4,15 @@
     define("BASE_DIR", dirname(__DIR__) );
 
 
-    // require RainDB
-    require BASE_DIR . "/library/Rain/DB.php";
+    // Autoloader
+    // ----------
+    // 
+    // All Rain class are loaded with the autoloader.
+    // If you install RainForm with composer you want
+    // to include the autoloader of composer which 
+    // usually is "vendor/autoload.php"
+    //
+    require BASE_DIR . "/library/Rain/autoload.php";
 
 
     // use the namespace Rain
@@ -28,5 +35,5 @@
     
 
     // getField
-    $field = DB::getField("SELECT title FROM content LIMIT 1");
+    $field = DB::getField("SELECT firstname FROM user WHERE user_id=:user_id", array(":user_id"=>1) );
     var_dump( $field );

@@ -7,7 +7,7 @@ $db = array(
         'hostname' => 'localhost',
         'username' => 'root',
         'password' => 'root',
-        'database' => 'rain'
+        'database' => 'RainDB_example'
     ),
     //production database (live website)
     'prod' => array(
@@ -19,6 +19,4 @@ $db = array(
     )
 );
 
-if (!defined("DB_PREFIX"))
-    define("DB_PREFIX", "RAIN_");
 // -- end

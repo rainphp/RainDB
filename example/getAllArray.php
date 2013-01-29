@@ -36,13 +36,12 @@
 
 
     //
-    // DB::getAll
+    // DB::getAllArray
     // ----------
-    // It execute a query and return an Iterator to get each rows of the result.
-    // This method is really handy to be used together with a template engine,
-    // for example you can get the entire list of users and print them in a template.
-    // Because it return an Iterator the performance of DB::getAll are basically the 
-    // same as executing a query and fetch each row in a loop.
+    // It execute a query and return the result as an Array,
+    // this function is really handy to assign the value to a template.
+    // getAllArray retrieve the entire result all together, if you need to get
+    // only a few rows, getAll is probably better in term of performance.
     //
     $query = "SELECT CONCAT( u.firstname, ' ', u.lastname ) AS username, g.name AS `group`
                 FROM user u
@@ -51,11 +50,9 @@
                 ORDER BY g.group_id
                 LIMIT 10";
 
-    $iterator = DB::getAll($query);
+    $list = DB::getAllArray($query);
 
     echo "<pre>-----------------------
 Iterator result
 -----------------------</pre>";
-    foreach ($iterator as $row) {
-        var_dump($row);
-    }
+    var_dump($list);

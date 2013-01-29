@@ -10,4 +10,4 @@
     );
 
     // require Rain DB
-    require_once "Rain/DB.php";
+    require_once "Rain/autoload.php";

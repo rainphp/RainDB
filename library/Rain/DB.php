@@ -11,7 +11,6 @@ namespace Rain;
  * @link http://rainframework.com
  */
 
-
 /**
  * DB is the main class of the library
  */
@@ -33,7 +32,14 @@ class DB {
         "config_dir"              => "config/",
         "config_file"             => "db.php",
         "default_connection_name" => "dev",
-        "fetch_mode"              => \PDO::FETCH_ASSOC
+        "fetch_mode"              => \PDO::FETCH_ASSOC,
+        
+        // Iterator Mode
+        // -------------
+        // true: getAll will return an Iterator (suggested)
+        // false: getAll will return an Array
+        //
+        "iterator_mode"           => true
 
     );
 
@@ -42,7 +48,8 @@ class DB {
      * Initialize the connection
      * @param string $name Name of the connection
      */
-    public static function init( $name = null ){
+    public static function init($name = null)
+    {
 
         // set the database list
         if (!self::$db) {
@@ -105,14 +112,24 @@ class DB {
     * @param string $query
     * @param array $field if you use PDO prepared query here you going to write the field
     */
-    public static function query($query = null, $field = array() ) {
+    public static function query($query = null, $field = array())
+    {
         try {
             self::$last_query = $query;
             self::$nquery++;
-            self::$statement = self::$link->prepare($query);
-            self::$statement->execute($field);
+            
+            // if field is declared use the Prepare Statement
+            // to clean the variables
+            if( $field ){
+                self::$statement = self::$link->prepare($query);
+                self::$statement->execute($field);
+            }
+            // if there aren't fields use PDO::query which is faster
+            else{
+                self::$statement = self::$link->query($query);
+            }
             return self::$statement;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             error_reporting("Error!: " . $e->getMessage() . "<br/>", E_USER_ERROR);
         }
     }
@@ -126,7 +143,8 @@ class DB {
     * @param array $field
     * @return string
     */
-    public static function getField($query = null, $field = array()) {
+    public static function getField($query = null, $field = array())
+    {
         if( $query )
             self::query($query, $field);
         return self::$statement->fetchColumn(0);
@@ -141,7 +159,8 @@ class DB {
     * @param array $field
     * @return array
     */
-    public static function getRow($query = null, $field = array()) {
+    public static function getRow($query = null, $field = array())
+    {
         if( $query )
             self::query($query, $field);
         return self::$statement->fetch(self::$conf['fetch_mode']);
@@ -150,7 +169,7 @@ class DB {
     
 
     /**
-    * Get a list of rows. Example:
+    * Get the result of a query in an Iterator, example:
     *
     * db::get_all("SELECT * FROM user")  => array(array('id'=>23,'name'=>'tim'),array('id'=>43,'name'=>'max') ... )
     * db::get_all("SELECT * FROM user","id")  => array(23=>array('id'=>23,'name'=>'tim'),42=>array('id'=>43,'name'=>'max') ... )
@@ -162,35 +181,77 @@ class DB {
     * @param array $field
     * @return array of array
     */
-    public static function getAll($query = null, $field = array(), $key = null, $value = null) {
+    public static function getAll( $query = null, $field = array(), $key = null, $value = null ) {
         $rows = array();
         if( $query )
             self::query($query, $field);
-        
+
+        // return the iterator with the values
+        return new \Rain\DB\StatementIterator( self::$statement, self::$conf['fetch_mode'], $key, $value );
+    }
+    
+
+
+
+    /**
+    * Get the result of a query in an Array, example:
+    *
+    * db::get_all("SELECT * FROM user")  => array(array('id'=>23,'name'=>'tim'),array('id'=>43,'name'=>'max') ... )
+    * db::get_all("SELECT * FROM user","id")  => array(23=>array('id'=>23,'name'=>'tim'),42=>array('id'=>43,'name'=>'max') ... )
+    * db::get_all("SELECT * FROM user","id","name")  => array(23=>'tim'),42=>'max' ...)
+    *
+    * @param string $query
+    * @param string $key
+    * @param string $value
+    * @param array $field
+    * @return array of array
+    */
+    public static function getAllArray( $query = null, $field = array(), $key = null, $value = null ) {
+        $rows = array();
+        if( $query )
+            self::query($query, $field);
+
+        // If not it will return the entire results as an Array
         if ($result = self::$statement->fetchALL(self::$conf['fetch_mode'])) {
+            // return the array
             if (!$key){
                 return $result;
-            }
-            elseif (!$value){
+            } elseif (!$value){
                 foreach ($result as $row){
                     $rows[$row[$key]] = $row;
                 }
-            }
-            else{
-                foreach ($result as $row){
-                    $rows[$row[$key]] = $row[$value];
+            } else {
+                
+                // if the result is an array
+                if( \PDO::FETCH_ASSOC == self::$conf['fetch_mode'] ){
+                    foreach ($result as $row){
+                        $rows[$row[$key]] = $row[$value];
+                    }
                 }
+                // fetch mode object
+                elseif( \PDO::FETCH_OBJ == self::$conf['fetch_mode'] ){
+                    foreach ($result as $row){
+                        $rows[$row->$key] = $row->$value;
+                    }
+                }
+                else{
+                    // Fetch Mode not recognized exception
+                    throw new \Rain\DB\Exception\FetchModeException("Fetch Mode not supported by getAll");
+                }
+                
             }
         }
+
         return $rows;
     }
     
     
-    
+
     /**
      * Get the last inserted id of an insert query
      */
-    public static function getLastId() {
+    public static function getLastId()
+    {
         return self::$link->lastInsertId();
     }
 
@@ -199,16 +260,16 @@ class DB {
     /**
      * Return the last query executed
      */
-    public static function getLastQuery(){
+    public static function getLastQuery()
+    {
         return self::$last_query;
     }
     
-
-
     /**
      * Return the number of executed query
      */
-    public static function getExecutedQuery() {
+    public static function getExecutedQuery()
+    {
         return self::$nquery;
     }
 
@@ -217,14 +278,14 @@ class DB {
     /**
      * Connect to the database
      */
-    public static function setup($string, $username, $password, $name ) {
-
+    public static function setup($string, $username, $password, $name)
+    {
         try {
             self::$link = new \PDO($string, $username, $password);
             self::$link->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
             self::$link_list[$name] = self::$link;  
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             die("Error!: " . $e->getMessage() . "<br/>");
         }
     }
@@ -233,17 +294,16 @@ class DB {
     /**
      * Configure the settings
      */
-    public static function configure($setting, $value = null) {
-        if (is_array($setting))
+    public static function configure($setting, $value = null)
+    {
+        if (is_array($setting)){
             foreach ($setting as $key => $value)
                 static::configure($key, $value);
-        else if (isset(static::$conf[$setting])) {
+        } else if (isset(static::$conf[$setting])) {
             static::$conf[$setting] = $value;
         }
     }
-    
-    
-    
+
     /**
      * Close PDO connection
      * execute this method to close the connection with the selected database
@@ -253,9 +313,4 @@ class DB {
     public static function disconnect() {
         unset(self::$link);
     }
-
-
-
 }
-
-// -- end
