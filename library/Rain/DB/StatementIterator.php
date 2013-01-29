@@ -34,6 +34,10 @@ class StatementIterator implements \Iterator
         return $this->statement->bindValue($parameter, $variable, $data_type);
     }
 
+    public function columnCount()
+    {
+        return $this->statement->columnCount();
+    }
     public function rewind()
     {
         if ($this->statement->execute()) {
