@@ -19,6 +19,11 @@ class StatementIterator implements \Iterator
         $this->fetch_mode   = $fetch_mode;
     }
 
+    public function bindParam($parameter, &$variable, $data_type = \PDO::PARAM_STR)
+    {
+        return $this->statement->bindParam($parameter, $variable, $data_type)
+    }
+
     public function rewind()
     {
         if ($this->statement->execute()) {
